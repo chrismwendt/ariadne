@@ -33,7 +33,7 @@ executable ariadne-server
     haskell-src-exts >=1.14,
     haskell-packages >=0.2,
     mtl >=2.1,
-    bert >=1.1,
+    bert >=1.2,
     utf8-string >=0.3,
     containers >=0.4,
     Cabal >=1.18

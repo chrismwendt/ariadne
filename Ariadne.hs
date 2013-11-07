@@ -59,7 +59,7 @@ work mod line col = handleExceptions $ do
       try (a >>= evaluate) >>= either (\e -> return $ Just $ ResolveError $ show (e::SomeException)) return
 
 main = do
-  t <- fromHostPort "" 39014
+  t <- tcpServer 39014
   serve t dispatch
   where
     -- dispatch _ _ args = do print args; return $ Success $ NilTerm
