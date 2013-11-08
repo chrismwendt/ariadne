@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                ariadne
-version:             0.1.2
+version:             0.1.2.1
 synopsis:            Go-to-definition for Haskell
 description:         See <https://github.com/feuerbach/ariadne#ariadne>
 homepage:            https://github.com/feuerbach/ariadne
