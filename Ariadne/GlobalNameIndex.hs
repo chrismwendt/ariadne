@@ -1,4 +1,6 @@
 {-# LANGUAGE TupleSections, TypeFamilies #-}
+-- | Construction of the global name index. See 'GlobalNameIndex' for the
+-- description.
 module Ariadne.GlobalNameIndex (mkGlobalNameIndex) where
 
 import Language.Haskell.Names
@@ -12,6 +14,15 @@ import Data.Maybe
 
 import Ariadne.Types
 
+-- | Create the global name index for a given module.
+--
+-- This function assumes that the module's import table is calculated
+-- somewhere outside (probably using 'processImports').
+
+-- Why we don't calculate the import table right here? First, it would
+-- bring all the complexity of ModuleT here. Second, what about recursive
+-- modules? Third, this avoids double cost of resolution if it's needed
+-- somewhere else too.
 mkGlobalNameIndex
   :: Global.Table -> Module SrcLoc -> GlobalNameIndex
 mkGlobalNameIndex tbl mod =
