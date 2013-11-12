@@ -75,8 +75,8 @@ collectModules root modname = do
       exists <- liftIO $ doesFileExist path
       if not exists
         then do
-          liftIO . L.debugM "ariadne.parser" $
-            printf "%s: not found at %s" modname path
+          {-liftIO . L.debugM "ariadne.parser" $
+            printf "%s: not found at %s" modname path-}
           return ()
         else do
           parseResult <- liftIO $ parse path
@@ -131,8 +131,14 @@ main = do
   t <- tcpServer 39014
   serve t dispatch
   where
-    -- dispatch _ _ args = do print args; return $ Success $ NilTerm
-    dispatch "ariadne" "find" [BinaryTerm file, IntTerm line, IntTerm col] =
+    dispatch mod fn args = do
+      L.debugM "ariadne.server" $
+        printf "request: %s %s %s" mod fn (show args)
+      response <- handle mod fn args
+      L.debugM "ariadne.server" $
+        printf "response: %s" (show response)
+      return response
+    handle "ariadne" "find" [BinaryTerm file, IntTerm line, IntTerm col] = do
       work (UTF8.toString file) line col >>= \result -> return . Success $
         case result of
           Nothing -> TupleTerm [AtomTerm "no_name"]
@@ -153,4 +159,4 @@ main = do
               [ AtomTerm "error"
               , BinaryTerm (UTF8.fromString er)
               ]
-    dispatch _ _ _ = return NoSuchFunction
+    handle _ _ _ = return NoSuchFunction
