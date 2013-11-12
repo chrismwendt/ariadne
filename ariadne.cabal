@@ -39,5 +39,6 @@ executable ariadne-server
     Cabal >=1.18,
     hslogger >= 1.2,
     filepath,
-    directory
+    directory,
+    tagged
   default-language:    Haskell2010

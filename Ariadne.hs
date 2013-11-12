@@ -11,6 +11,7 @@ import Language.Haskell.Names.SyntaxUtils
 import Language.Haskell.Names.Imports
 import Language.Haskell.Exts.Annotated hiding (parse)
 import Distribution.HaskellSuite.Packages
+import Distribution.Simple.Compiler (PackageDB(..))
 
 import Control.Applicative
 import Control.Monad.Trans
@@ -24,6 +25,8 @@ import System.Environment
 import qualified Data.Map as Map
 import qualified System.Log.Logger as L
 import Data.Maybe
+import qualified Data.Foldable as F
+import Data.Proxy
 
 import Data.BERT
 import Network.BERT.Server
@@ -111,7 +114,7 @@ work path line col = handleExceptions $ do
         flip execStateT (Map.singleton modnameS parsed) $
           mapM_ (collectModules root) (importedModules parsed)
 
-      let pkgs = []
+      pkgs <- F.fold <$> mapM (getInstalledPackages (Proxy :: Proxy NamesDB)) [GlobalPackageDB, UserPackageDB]
       (resolved, impTbls) <-
         flip evalNamesModuleT pkgs $ do
           errs <- computeInterfaces defaultLang defaultExts sources
