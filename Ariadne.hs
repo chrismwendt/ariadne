@@ -103,20 +103,24 @@ work path line col = handleExceptions $ do
       let root = rootPath path (getModuleName parsed)
 
       sources <-
+        liftM Map.elems $
         flip execStateT Map.empty $
           mapM_ (collectModules root) (importedModules parsed)
 
       let pkgs = []
-      (resolved, impTbl) <-
+      (resolved, impTbls) <-
         flip evalNamesModuleT pkgs $ do
-          -- computeInterfaces lang exts mod
-          let extSet = moduleExtensions defaultLang defaultExts parsed
-          (,) <$>
-            (annotateModule defaultLang defaultExts parsed) <*>
-            (fmap snd $ processImports extSet $ getImports parsed)
-
+          errs <- computeInterfaces defaultLang defaultExts sources
+          impTbls <- forM sources $ \parsed -> do
+            let extSet = moduleExtensions defaultLang defaultExts parsed
+            fmap snd $ processImports extSet $ getImports parsed
+          resolved <- annotateModule defaultLang defaultExts parsed
+          return (resolved, impTbls)
       let
-        gIndex = mkGlobalNameIndex impTbl (getPointLoc <$> parsed)
+        gIndex = Map.unions $
+          zipWith
+            (\src impTbl -> mkGlobalNameIndex impTbl (getPointLoc <$> src))
+            sources impTbls
         srcMap = mkSrcMap gIndex (fmap srcInfoSpan <$> resolved)
 
       return $ SrcMap.lookup noLoc { srcLine = line, srcColumn = col } srcMap
