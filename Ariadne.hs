@@ -20,8 +20,10 @@ import Control.Monad.State
 import Text.Printf
 import System.FilePath
 import System.Directory
+import System.Environment
 import qualified Data.Map as Map
 import qualified System.Log.Logger as L
+import Data.Maybe
 
 import Data.BERT
 import Network.BERT.Server
@@ -131,8 +133,10 @@ work path line col = handleExceptions $ do
       try (a >>= evaluate) >>= either (\e -> return $ Just $ ResolveError $ show (e::SomeException)) return
 
 main = do
-  logger <- L.getRootLogger
-  L.updateGlobalLogger L.rootLoggerName (L.setLevel L.DEBUG)
+  lookupEnv "ARIADNE_DEBUG" >>= \v ->
+    when (isJust v) $ do
+      logger <- L.getRootLogger
+      L.updateGlobalLogger L.rootLoggerName (L.setLevel L.DEBUG)
 
   t <- tcpServer 39014
   serve t dispatch
