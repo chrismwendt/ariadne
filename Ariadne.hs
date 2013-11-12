@@ -100,11 +100,13 @@ work path line col = handleExceptions $ do
       return $ Just $ ResolveError $ printf "%s: %s" (prettyPrint loc) msg
 
     ParseOk parsed -> do
-      let root = rootPath path (getModuleName parsed)
+      let
+        modname@(ModuleName _ modnameS) = getModuleName parsed
+        root = rootPath path modname
 
       sources <-
         liftM Map.elems $
-        flip execStateT Map.empty $
+        flip execStateT (Map.singleton modnameS parsed) $
           mapM_ (collectModules root) (importedModules parsed)
 
       let pkgs = []
