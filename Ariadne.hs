@@ -10,6 +10,7 @@ import Language.Haskell.Names.Interfaces
 import Language.Haskell.Names.SyntaxUtils
 import Language.Haskell.Names.Imports
 import Language.Haskell.Exts.Annotated hiding (parse)
+import Language.Haskell.Exts.Annotated.CPP
 import Distribution.HaskellSuite.Packages
 import Distribution.Simple.Compiler (PackageDB(..))
 
@@ -38,9 +39,11 @@ defaultLang = Haskell2010
 defaultExts = []
 
 parse :: FilePath -> IO (ParseResult (Module SrcSpanInfo))
-parse path = do
-  parseFileWithMode
-    defaultParseMode { parseFilename = path }
+parse path =
+  fmap fst <$>
+  parseFileWithCommentsAndCPP
+    defaultCpphsOptions
+    defaultParseMode { parseFilename = path, ignoreLinePragmas = False }
     path
 
 -- | Get the module's root path, based on its path and the module name

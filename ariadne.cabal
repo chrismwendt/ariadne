@@ -32,6 +32,7 @@ executable ariadne-server
     haskell-names >=0.3,
     haskell-src-exts >=1.14,
     haskell-packages >=0.2,
+    hse-cpp >= 0.1,
     mtl >=2.1,
     bert >=1.2,
     utf8-string >=0.3,
