@@ -20,6 +20,7 @@ Editor plugins
 Currently, the following editor/IDE plugins exist:
 
 * [vim](https://github.com/feuerbach/ariadne-vim)
+* [emacs](https://github.com/manzyuk/ariadne-el)
 
 Limitations
 -----------
