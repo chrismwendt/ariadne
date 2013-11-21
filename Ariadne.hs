@@ -3,12 +3,14 @@ module Main where
 
 import Ariadne.GlobalNameIndex
 import Ariadne.Index
+import Ariadne.Types
 import qualified Ariadne.SrcMap as SrcMap
 
 import Language.Haskell.Names
 import Language.Haskell.Names.Interfaces
 import Language.Haskell.Names.SyntaxUtils
 import Language.Haskell.Names.Imports
+import qualified Language.Haskell.Names.GlobalSymbolTable as Global
 import Language.Haskell.Exts.Annotated hiding (parse)
 import Language.Haskell.Exts.Annotated.CPP
 import Distribution.HaskellSuite.Packages
@@ -70,6 +72,8 @@ importedModules :: Module a -> [ModuleNameS]
 importedModules mod =
   map ((\(ModuleName _ s) -> s) . importModule) $ getImports mod
 
+-- | Recursively read and parse the given module and all its transitive
+-- imports
 collectModules
   :: FilePath
   -> ModuleNameS
@@ -113,24 +117,34 @@ work path line col = handleExceptions $ do
         root = rootPath path modname
 
       sources <-
-        liftM Map.elems $
+       (liftM Map.elems $
         flip execStateT (Map.singleton modnameS parsed) $
-          mapM_ (collectModules root) (importedModules parsed)
+          mapM_ (collectModules root) (importedModules parsed))
+        :: IO [Module SrcSpanInfo]
+        -- not ambiguous; signatures are just for clarity
 
-      pkgs <- F.fold <$> mapM (getInstalledPackages (Proxy :: Proxy NamesDB)) [GlobalPackageDB, UserPackageDB]
+      pkgs <-
+       (F.fold <$> mapM (getInstalledPackages (Proxy :: Proxy NamesDB)) [GlobalPackageDB, UserPackageDB])
+        :: IO Packages
+
       (resolved, impTbls) <-
-        flip evalNamesModuleT pkgs $ do
+       (flip evalNamesModuleT pkgs $ do
           errs <- computeInterfaces defaultLang defaultExts sources
           impTbls <- forM sources $ \parsed -> do
             let extSet = moduleExtensions defaultLang defaultExts parsed
             fmap snd $ processImports extSet $ getImports parsed
           resolved <- annotateModule defaultLang defaultExts parsed
-          return (resolved, impTbls)
+          return (resolved, impTbls))
+        :: IO (Module (Scoped SrcSpanInfo), [Global.Table])
+
       let
+        gIndex :: GlobalNameIndex
         gIndex = Map.unions $
           zipWith
             (\src impTbl -> mkGlobalNameIndex impTbl (getPointLoc <$> src))
             sources impTbls
+
+        srcMap :: SrcMap.SrcMap Origin
         srcMap = mkSrcMap gIndex (fmap srcInfoSpan <$> resolved)
 
       return $ SrcMap.lookup noLoc { srcLine = line, srcColumn = col } srcMap
