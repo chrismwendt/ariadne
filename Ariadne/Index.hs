@@ -12,12 +12,6 @@ import qualified Data.Map as Map
 import Ariadne.Types
 import qualified Ariadne.SrcMap as SrcMap
 
-data Origin
-  = LocKnown SrcLoc
-  | LocUnknown ModuleNameS
-  | ResolveError String
-  deriving Show
-
 mkSrcMap
   :: Foldable a
   => GlobalNameIndex
