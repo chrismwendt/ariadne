@@ -56,7 +56,9 @@ main = do
         printf "response: %s" (show response)
       return response
     handle mdb "ariadne" "find" [BinaryTerm file, IntTerm line, IntTerm col] = do
-      answer mdb (UTF8.toString file) line col >>= \result -> return . Success $
+      let filestr = UTF8.toString file
+      sendRequestSync mdb (Include filestr)
+      answer mdb filestr line col >>= \result -> return . Success $
         case result of
           Nothing -> TupleTerm [AtomTerm "no_name"]
           Just (LocKnown (SrcLoc file' line' col')) ->
