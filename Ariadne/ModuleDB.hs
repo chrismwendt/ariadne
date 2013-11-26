@@ -117,6 +117,7 @@ include path = do
           -- it.
           return ()
         else do
+          liftIO . L.debugM "ariadne.moduledb" $ printf "Including %s in the set of watched files" path
           watchedFiles %= Set.insert path
           update path
           return ()
