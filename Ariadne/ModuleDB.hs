@@ -1,6 +1,13 @@
 {-# LANGUAGE TemplateHaskell, FlexibleContexts, MultiParamTypeClasses #-}
 
-module Ariadne.ModuleDB where
+module Ariadne.ModuleDB
+  ( sendRequestAsync
+  , sendRequestSync
+  , Request(..)
+  , answer
+  , withModuleDB
+  )
+  where
 
 import Ariadne.GlobalNameIndex
 import Ariadne.Index
