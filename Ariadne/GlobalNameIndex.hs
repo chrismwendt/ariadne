@@ -33,7 +33,7 @@ mkGlobalNameIndex tbl mod =
     names = concatMap (indexDecl tbl) ds
 
   in
-    Map.fromList
+    Map.fromListWith (const id) -- prefer earlier names
       [ ((OrigName Nothing (GName modname (nameToString n)), level), ann n)
       | (n, level) <- names
       ]
