@@ -43,6 +43,8 @@ main = do
       logger <- L.getRootLogger
       L.updateGlobalLogger L.rootLoggerName (L.setLevel L.DEBUG)
 
+  L.debugM "ariadne" "Ariadne started"
+
   t <- tcpServer 39014
 
   withModuleDB $ \mdb -> serve t (dispatch mdb)
