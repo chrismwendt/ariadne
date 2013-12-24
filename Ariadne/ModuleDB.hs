@@ -13,6 +13,7 @@ import Ariadne.GlobalNameIndex
 import Ariadne.Index
 import Ariadne.Types
 import qualified Ariadne.SrcMap as SrcMap
+import Ariadne.ModuleDB.Types
 
 import Language.Haskell.Names
 import Language.Haskell.Names.Interfaces
@@ -49,31 +50,6 @@ import Control.Concurrent.Async
 import Control.Concurrent.STM
 
 import Data.Lens
-import Data.Lens.Template
-
-data Request
-  = Include FilePath
-  | Update FilePath
-
-type Callback = IO ()
-
--- ModuleDB's moduleData should only be modified in the ModuleDB's own
--- thread. Outside, it can only be read. This is inforced by the module
--- system.
-data ModuleDB = ModuleDB
-  { requestChan :: Chan (Request, Callback)
-  , storage :: TVar Storage
-  }
-
-data Storage = Storage
-  { _watchedFiles :: Set.Set FilePath
-  , _moduleSources :: Map.Map FilePath (Module SrcSpan)
-  , _moduleSrcMaps :: Map.Map FilePath (SrcMap.SrcMap Origin)
-  }
-
-emptyStorage = Storage mempty mempty mempty
-
-makeLenses [''Storage]
 
 -- | Send a request and wait for its completion
 sendRequestSync :: ModuleDB -> Request -> IO ()
