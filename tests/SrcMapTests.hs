@@ -1,11 +1,10 @@
+module SrcMapTests (srcMapTests) where
+
 import Test.Tasty
 import Test.Tasty.HUnit
 
 import qualified Ariadne.SrcMap as SrcMap
 import Language.Haskell.Exts.SrcLoc
-
-main = defaultMain $
-  testGroup "Tests" [srcMapTests]
 
 srcMapTests = testGroup "SrcMap tests"
   [ testCase "lookup 1" $ SrcMap.lookup (SrcLoc "" 1 3) m @?= Just ()
