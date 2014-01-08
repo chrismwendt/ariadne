@@ -69,9 +69,9 @@ actOn (Update path) = update path
 include :: (MonadState Storage m, MonadIO m) => FilePath -> m ()
 include path = do  
   exists <- liftIO $ doesFileExist path
+  watchedFiles %= Set.insert path
+
   if not exists
-    -- XXX should we watch for non-existent paths?
-    -- Find out whether the OSes support that
     then return ()
     else do
       path <- liftIO $ canonicalizePath path
@@ -85,7 +85,6 @@ include path = do
           return ()
         else do
           liftIO . L.debugM "ariadne.moduledb" $ printf "Including %s in the set of watched files" path
-          watchedFiles %= Set.insert path
           update path
           return ()
 
