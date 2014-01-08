@@ -68,25 +68,12 @@ actOn (Update path) = update path
 
 include :: (MonadState Storage m, MonadIO m) => FilePath -> m ()
 include path = do  
-  exists <- liftIO $ doesFileExist path
-  watchedFiles %= Set.insert path
-
-  if not exists
-    then return ()
-    else do
-      path <- liftIO $ canonicalizePath path
-      alreadyPresent <- gets (Set.member path . getL watchedFiles)
-      if alreadyPresent
-        then
-          -- No reason to assume that the file has changed.
-          -- Actually, this is a slight abuse of the watch set — we rely
-          -- on the invariant that when we include the path we also update
-          -- it.
-          return ()
-        else do
-          liftIO . L.debugM "ariadne.moduledb" $ printf "Including %s in the set of watched files" path
-          update path
-          return ()
+  alreadyPresent <- gets (Set.member path . getL watchedFiles)
+  unless alreadyPresent $ do
+    liftIO . L.debugM "ariadne.moduledb" $ printf "Including %s in the set of watched files" path
+    exists <- liftIO $ doesFileExist path
+    watchedFiles %= Set.insert path
+    when exists $ update path
 
 getSrcMap :: ModuleDB -> FilePath -> IO (Maybe (SrcMap.SrcMap Origin))
 getSrcMap (ModuleDB { storage = storageV }) path = do
