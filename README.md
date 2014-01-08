@@ -61,8 +61,8 @@ The request has form
     find(file, line, column)
 
 where `file` is a binary string, `line` and `column` are integers. `file` must
-contain the full path to the Haskell source file. It is assumed to be UTF-8
-encoded, although this may improve in the future.
+contain the full and canonical path to the Haskell source file. It is assumed to
+be UTF-8 encoded, although this may improve in the future.
 
 The `line` and `column` should probably be the current cursor position. Ariadne
 will look up the name at that location. Lines and columns are numbered starting
