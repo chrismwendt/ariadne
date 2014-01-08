@@ -39,8 +39,8 @@ invocationTests =
       tcpClient "localhost" 39014 `catch` \(e :: IOException) ->
         throwIO $ ErrorCall "Failed to connect; is ariadne-server running?"
 
-testSourcesDir = "test-sources"
-runDir = "run"
+testSourcesDir = "tests/test-sources"
+runDir = "tests/run"
 
 createRun = do
   createDirectory runDir
