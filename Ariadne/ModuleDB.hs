@@ -66,15 +66,6 @@ actOn :: Request -> StateT Storage IO ()
 actOn (Include path) = include path
 actOn (Update path) = update path
 
-include :: (MonadState Storage m, MonadIO m) => FilePath -> m ()
-include path = do  
-  alreadyPresent <- gets (Set.member path . getL watchedFiles)
-  unless alreadyPresent $ do
-    liftIO . L.debugM "ariadne.moduledb" $ printf "Including %s in the set of watched files" path
-    exists <- liftIO $ doesFileExist path
-    watchedFiles %= Set.insert path
-    when exists $ update path
-
 getSrcMap :: ModuleDB -> FilePath -> IO (Maybe (SrcMap.SrcMap Origin))
 getSrcMap (ModuleDB { storage = storageV }) path = do
   storage <- atomically $ readTVar storageV

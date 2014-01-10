@@ -27,11 +27,21 @@ import Text.Printf
 import System.FilePath
 import System.Directory
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified System.Log.Logger as L
 import Data.Maybe
 import qualified Data.Foldable as F
 import Data.Proxy
 import Data.Lens
+
+include :: (MonadState Storage m, MonadIO m) => FilePath -> m ()
+include path = do
+  alreadyPresent <- gets (Set.member path . getL watchedFiles)
+  unless alreadyPresent $ do
+    liftIO . L.debugM "ariadne.moduledb" $ printf "Including %s in the set of watched files" path
+    exists <- liftIO $ doesFileExist path
+    watchedFiles %= Set.insert path
+    when exists $ update path
 
 update
   :: (MonadState Storage m, MonadIO m)
