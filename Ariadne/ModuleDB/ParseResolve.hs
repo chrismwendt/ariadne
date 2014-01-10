@@ -105,7 +105,7 @@ readSources path = do
           liftIO . L.debugM "ariadne.parser" $
             printf "Parsed %s at %s" modnameS path
           moduleSources %= Map.insert path (srcInfoSpan <$> parsed)
-          mapM_ (readSources . modNameToPath root) (importedModules parsed)
+          mapM_ (include . modNameToPath root) (importedModules parsed)
 
 -- these should probably come from the Cabal file
 defaultLang = Haskell2010
