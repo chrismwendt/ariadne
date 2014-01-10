@@ -33,6 +33,10 @@ invocationTests =
         ("t1.hs", 9, 9)
         (TupleTerm [AtomTerm "loc_known",BinaryTerm "L.hs",IntTerm 3,IntTerm 1])
         (copyFile (runDir </> "Lv2.hs") (runDir </> "L.hs"))
+      , mkTest "Recursive modules" getTransport
+        ("Rec1.hs", 5, 5)
+        (TupleTerm [AtomTerm "loc_known",BinaryTerm "Rec2.hs",IntTerm 5,IntTerm 1])
+        (return ())
       ]
   where
     connect =
