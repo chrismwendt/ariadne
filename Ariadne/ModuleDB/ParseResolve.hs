@@ -46,7 +46,7 @@ update path = do
    ((F.fold <$> mapM (getInstalledPackages (Proxy :: Proxy NamesDB)) [GlobalPackageDB, UserPackageDB])
     :: IO Packages)
 
-  (resolved, impTbls) <- liftIO (liftM unzip $ 
+  (resolved, impTbls) <- liftIO (liftM unzip $
    (flip evalNamesModuleT pkgs $ do
       errs <- computeInterfaces defaultLang defaultExts sources
       forM sources $ \parsed -> do
