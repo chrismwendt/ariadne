@@ -38,7 +38,7 @@ update
   => FilePath -- the file to update
   -> m ()
 update path = do
-  readSources Nothing path
+  readSources path
 
   (paths, sources) <- (Map.keys &&& Map.elems) `liftM` access moduleSources
 
@@ -72,10 +72,9 @@ update path = do
 
 readSources
   :: (MonadState Storage m, MonadIO m)
-  => Maybe FilePath -- root path, if known
-  -> FilePath -- the file to update
+  => FilePath -- the file to update
   -> m ()
-readSources mbRoot path = do
+readSources path = do
   exists <- liftIO $ doesFileExist path
   if not exists
     then do
@@ -92,11 +91,11 @@ readSources mbRoot path = do
         ParseOk parsed -> do
           let
             modname@(ModuleName _ modnameS) = getModuleName parsed
-            root = fromMaybe (rootPath path modname) mbRoot
+            root = rootPath path modname
           liftIO . L.debugM "ariadne.parser" $
             printf "Parsed %s at %s" modnameS path
           moduleSources %= Map.insert path (srcInfoSpan <$> parsed)
-          mapM_ (readSources (Just root) . modNameToPath root) (importedModules parsed)
+          mapM_ (readSources . modNameToPath root) (importedModules parsed)
 
 -- these should probably come from the Cabal file
 defaultLang = Haskell2010
