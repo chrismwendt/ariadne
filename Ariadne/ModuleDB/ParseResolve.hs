@@ -23,6 +23,7 @@ import Control.Arrow
 import Control.Monad.Trans
 import Control.Monad
 import Control.Monad.State
+import Control.Exception
 import Text.Printf
 import System.FilePath
 import System.Directory
@@ -112,12 +113,16 @@ defaultLang = Haskell2010
 defaultExts = []
 
 parse :: FilePath -> IO (ParseResult (Module SrcSpanInfo))
-parse path =
-  fmap fst <$>
-  parseFileWithCommentsAndCPP
-    defaultCpphsOptions
-    defaultParseMode { parseFilename = path, ignoreLinePragmas = False }
-    path
+parse path = do
+  ast <- fmap fst <$>
+    parseFileWithCommentsAndCPP
+      defaultCpphsOptions
+      defaultParseMode { parseFilename = path, ignoreLinePragmas = False }
+      path
+  -- Sometimes the AST throws an exception when forcing the result, such
+  -- as "Ambiguous infix expression". Very annoying!
+  catch (evaluate ast) $ \e ->
+    return $ ParseFailed noLoc { srcFilename = path } (show (e :: ErrorCall))
 
 -- | Get the module's root path, based on its path and the module name
 rootPath :: FilePath -> ModuleName l -> FilePath
