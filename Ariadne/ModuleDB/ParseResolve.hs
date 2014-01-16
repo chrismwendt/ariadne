@@ -117,7 +117,10 @@ parse path = do
   ast <- fmap fst <$>
     parseFileWithCommentsAndCPP
       defaultCpphsOptions
-      defaultParseMode { parseFilename = path, ignoreLinePragmas = False }
+      defaultParseMode
+        { parseFilename = path
+        , ignoreLinePragmas = False
+        , fixities = Just [] }
       path
   -- Sometimes the AST throws an exception when forcing the result, such
   -- as "Ambiguous infix expression". Very annoying!
