@@ -43,10 +43,12 @@ sendRequestSync (ModuleDB { requestChan = chan }) req = do
   writeChan chan (req, cb)
   takeMVar mvar
 
+-- | Send a request and return immediately
 sendRequestAsync :: ModuleDB -> Request -> IO ()
 sendRequestAsync (ModuleDB { requestChan = chan }) req =
   writeChan chan (req, return ())
 
+-- | A ModuleDB create/destroy bracket
 withModuleDB :: (ModuleDB -> IO a) -> IO a
 withModuleDB act = do
   chan <- newChan
@@ -62,15 +64,19 @@ respond chan storageV = forever $ do
   atomically $ writeTVar storageV storage'
   cb
 
+-- | Handle a request, operating with the Storage in the State monad
+-- (a helper for respond)
 actOn :: Request -> StateT Storage IO ()
 actOn (Include path) = include path
 actOn (Update path) = update path
 
+-- | Get the current state of ModuleDB's location -> origin map
 getSrcMap :: ModuleDB -> FilePath -> IO (Maybe (SrcMap.SrcMap Origin))
 getSrcMap (ModuleDB { storage = storageV }) path = do
   storage <- atomically $ readTVar storageV
   return $ Map.lookup path $ storage ^. moduleSrcMaps
 
+-- | Compute a result for the query
 answer :: ModuleDB -> String -> Int -> Int -> IO (Maybe Origin)
 answer moduleDB path line col = do
   mbSrcMap <- getSrcMap moduleDB path
