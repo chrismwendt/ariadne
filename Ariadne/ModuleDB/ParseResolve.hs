@@ -35,6 +35,7 @@ import qualified Data.Foldable as F
 import Data.Proxy
 import Data.Lens
 
+-- | Start to watch the path, and if/when it exists, parse and record it
 include :: (MonadState Storage m, MonadIO m) => FilePath -> m ()
 include path = do
   alreadyPresent <- gets (Set.member path . getL watchedFiles)
@@ -44,6 +45,8 @@ include path = do
     watchedFiles %= Set.insert path
     when exists $ update path
 
+-- | Read/parse/analyse the given path and update the internal state
+-- (Storage) accordingly
 update
   :: (MonadState Storage m, MonadIO m)
   => FilePath -- the file to update
@@ -81,6 +84,8 @@ update path = do
 
   return ()
 
+-- | Helper for update. Reads/parses the source and also calls include on
+-- every imprted module
 readSources
   :: (MonadState Storage m, MonadIO m)
   => FilePath -- the file to update
