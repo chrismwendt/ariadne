@@ -95,3 +95,11 @@ The plugin is expected to present the error message to the user.
 The message is a binary UTF-8 encoded text, possibly spanning multiple lines.
 
 Other requests and responses will probably be added in the future versions.
+
+Maintainers
+-----------
+
+[Roman Cheplyaka](https://github.com/feuerbach) is the primary maintainer.
+
+[Oleksandr Manzyuk](https://github.com/manzyuk) is the backup maintainer. Please
+get in touch with him if the primary maintainer cannot be reached.
