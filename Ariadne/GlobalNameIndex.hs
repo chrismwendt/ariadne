@@ -79,7 +79,7 @@ indexDecl tbl d =
 
     FunBind _ ms -> map (, ValueLevel) $ getBound tbl ms
 
-    PatBind _ p _ _ _ -> map (, ValueLevel) $ getBound tbl p
+    PatBind _ p _ _ -> map (, ValueLevel) $ getBound tbl p
 
     ForImp _ _ _ _ fn _ -> [(fn, ValueLevel)]
 
