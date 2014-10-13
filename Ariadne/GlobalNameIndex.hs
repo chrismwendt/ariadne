@@ -41,11 +41,11 @@ mkGlobalNameIndex tbl mod =
 indexDecl :: Global.Table -> Decl SrcLoc -> [(Name SrcLoc, NameLevel)]
 indexDecl tbl d =
   case d of
-    TypeDecl _ dh _ -> [(hname dh, TypeLevel)]
-    TypeFamDecl _ dh _ -> [(hname dh, TypeLevel)]
+    TypeDecl _ dh _ -> [(getDeclHeadName dh, TypeLevel)]
+    TypeFamDecl _ dh _ -> [(getDeclHeadName dh, TypeLevel)]
 
     DataDecl _ _ _ dh qualConDecls _ ->
-      ((hname dh, TypeLevel) :) . map (, ValueLevel) $ do -- list monad
+      ((getDeclHeadName dh, TypeLevel) :) . map (, ValueLevel) $ do -- list monad
 
       QualConDecl _ _ _ conDecl <- qualConDecls
       case conDecl of
@@ -61,7 +61,7 @@ indexDecl tbl d =
       -- DataDecl case.
       -- (Also keep in mind that GHC doesn't create selectors for fields
       -- with existential type variables.)
-          (hname dh, TypeLevel) :
+          (getDeclHeadName dh, TypeLevel) :
         [ (cn, ValueLevel)
         | GadtDecl _ cn _ <- gadtDecls
         ]
@@ -71,9 +71,9 @@ indexDecl tbl d =
         ms = getBound tbl d
         cdecls = fromMaybe [] mds
       in
-          (hname dh, TypeLevel) :
-        [ (hname dh, TypeLevel) | ClsTyFam   _   dh _ <- cdecls ] ++
-        [ (hname dh, TypeLevel) | ClsDataFam _ _ dh _ <- cdecls ] ++
+          (getDeclHeadName dh, TypeLevel) :
+        [ (getDeclHeadName dh, TypeLevel) | ClsTyFam   _   dh _ <- cdecls ] ++
+        [ (getDeclHeadName dh, TypeLevel) | ClsDataFam _ _ dh _ <- cdecls ] ++
         [ (mn, ValueLevel) | mn <- ms ]
 
     FunBind _ ms -> map (, ValueLevel) $ getBound tbl ms
@@ -83,5 +83,3 @@ indexDecl tbl d =
     ForImp _ _ _ _ fn _ -> [(fn, ValueLevel)]
 
     _ -> []
-  where
-    hname = fst . splitDeclHead
