@@ -61,9 +61,10 @@ indexDecl tbl d =
       -- DataDecl case.
       -- (Also keep in mind that GHC doesn't create selectors for fields
       -- with existential type variables.)
+      -- TODO HSE 1.16 now supports GADT records
           (getDeclHeadName dh, TypeLevel) :
         [ (cn, ValueLevel)
-        | GadtDecl _ cn _ <- gadtDecls
+        | GadtDecl _ cn names _ <- gadtDecls
         ]
 
     ClassDecl _ _ dh _ mds ->
